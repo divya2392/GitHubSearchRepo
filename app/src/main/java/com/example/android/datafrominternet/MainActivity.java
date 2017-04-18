@@ -24,9 +24,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.datafrominternet.utilities.NetworkUtils;
+
+import java.net.URL;
+
 public class MainActivity extends AppCompatActivity {
 
-    EditText mSearchEditText;
+    EditText mSearchBoxEditText;
 
     TextView mUrlDisplayTextView;
 
@@ -38,10 +42,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSearchEditText = (EditText)findViewById(R.id.et_search_box);
+        mSearchBoxEditText = (EditText)findViewById(R.id.et_search_box);
         mUrlDisplayTextView = (TextView)findViewById(R.id.tv_url_display);
         mSearchResult = (TextView)findViewById(R.id.tv_github_search_results_json);
 
+    }
+    /**
+     * This method retrieves the search text from the EditText, constructs
+     * the URL (using {@link NetworkUtils}) for the github repository you'd like to find, displays
+     * that URL in a TextView, and finally fires off an AsyncTask to perform the GET request using
+     * our (not yet created)
+     */
+    void makegitSearchQuery()
+    {
+        String githubQuery = mSearchBoxEditText.getText().toString();
+        URL githubSearchUrl = NetworkUtils.buildUrl(githubQuery);
+        mUrlDisplayTextView.setText(githubSearchUrl.toString());
     }
 
     @Override
@@ -55,9 +71,8 @@ public class MainActivity extends AppCompatActivity {
         int menuItemThatWasSeleted = item.getItemId();
         if(menuItemThatWasSeleted == R.id.action_search)
         {
-            Context context = MainActivity.this;
-            String message = "search Clicked";
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            makegitSearchQuery();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
