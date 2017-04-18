@@ -21,7 +21,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,11 +34,15 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText mSearchBoxEditText;
+    private EditText mSearchBoxEditText;
 
-    TextView mUrlDisplayTextView;
+    private TextView mUrlDisplayTextView;
 
-    TextView mSearchResultTextView;
+    private TextView mSearchResultTextView;
+
+    private TextView mErrorMessageDisplay;
+
+    private ProgressBar mLoadingIndicator;
 
 
     @Override
@@ -47,8 +53,35 @@ public class MainActivity extends AppCompatActivity {
         mSearchBoxEditText = (EditText)findViewById(R.id.et_search_box);
         mUrlDisplayTextView = (TextView)findViewById(R.id.tv_url_display);
         mSearchResultTextView = (TextView)findViewById(R.id.tv_github_search_results_json);
-
+        mErrorMessageDisplay = (TextView)findViewById(R.id.tv_error_message_display);
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
     }
+    /**
+     * This method will make the View for the JSON data visible and
+     * hide the error message.
+     * <p>
+     * Since it is okay to redundantly set the visibility of a View, we don't
+     * need to check whether each view is currently visible or invisible.
+     */
+    private void showJsonDataView()
+    {
+        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        mSearchResultTextView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * This method will make the error message visible and hide the JSON
+     * View.
+     * <p>
+     * Since it is okay to redundantly set the visibility of a View, we don't
+     * need to check whether each view is currently visible or invisible.
+     */
+    private void showErrorMessage()
+    {
+        mSearchResultTextView.setVisibility(View.INVISIBLE);
+        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
+
     /**
      * This method retrieves the search text from the EditText, constructs
      * the URL (using {@link NetworkUtils}) for the github repository you'd like to find, displays
@@ -69,6 +102,12 @@ public class MainActivity extends AppCompatActivity {
     {
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
+
+        @Override
         protected String doInBackground(URL... urls) {
             URL searchUrl = urls[0];
             String githubSearchResults = null;
@@ -82,10 +121,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            if(s != null && !s.equals(""))
+        protected void onPostExecute(String githubSearchResults) {
+
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            if(githubSearchResults != null && !githubSearchResults.equals(""))
             {
-                mSearchResultTextView.setText(s);
+                showJsonDataView();
+                mSearchResultTextView.setText(githubSearchResults);
+            }else{
+                showErrorMessage();
             }
         }
     }
