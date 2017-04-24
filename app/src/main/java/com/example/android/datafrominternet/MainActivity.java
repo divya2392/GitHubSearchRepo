@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressBar mLoadingIndicator;
 
+    private static final String SEARCH_QUERY_URL_EXTRA = "query";
+
+    private static final String SEARCH_RESULTS_RAW_JSON = "results";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +58,27 @@ public class MainActivity extends AppCompatActivity {
         mSearchResultTextView = (TextView)findViewById(R.id.tv_github_search_results_json);
         mErrorMessageDisplay = (TextView)findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
+
+        if(savedInstanceState != null)
+        {
+            String queryUrl = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
+            String rawJsonSearchResults = savedInstanceState.getString(SEARCH_RESULTS_RAW_JSON);
+
+            mUrlDisplayTextView.setText(queryUrl);
+            mSearchResultTextView.setText(rawJsonSearchResults);
+        }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        String queryUrl = mUrlDisplayTextView.getText().toString();
+        outState.putString(SEARCH_QUERY_URL_EXTRA,queryUrl);
+
+        String rawJsonSearchResults = mSearchResultTextView.getText().toString();
+        outState.putString(SEARCH_RESULTS_RAW_JSON,rawJsonSearchResults);
+    }
+
     /**
      * This method will make the View for the JSON data visible and
      * hide the error message.
